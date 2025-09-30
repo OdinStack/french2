@@ -1,0 +1,508 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histoire de la France - Timeline Interactive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #002395 0%, #002395 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #ED2939 66.66%, #ED2939 100%);
+            background-attachment: fixed;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .intro-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.97);
+        }
+
+        .intro-content {
+            max-width: 900px;
+            text-align: center;
+            animation: fadeIn 1.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .intro-content h1 {
+            font-size: 3.5em;
+            color: #002395;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .intro-content .subtitle {
+            font-size: 1.3em;
+            color: #ED2939;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .intro-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #555;
+            text-align: justify;
+            margin-bottom: 40px;
+        }
+
+        .scroll-indicator {
+            font-size: 2em;
+            color: #002395;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        .timeline-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50px;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #002395, #ED2939);
+            z-index: 1;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 60px 0;
+            padding-left: 100px;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 26px;
+            top: 0;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: 4px solid #002395;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .timeline-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            transform: translateY(-5px);
+        }
+
+        .content-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .content-body {
+            padding: 25px;
+        }
+
+        .period-title {
+            font-size: 1.8em;
+            color: #002395;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .date-range {
+            font-size: 1em;
+            color: #ED2939;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            line-height: 1.7;
+            color: #555;
+            text-align: justify;
+            font-size: 0.95em;
+        }
+
+        .description p {
+            margin-bottom: 12px;
+        }
+
+        .key-points {
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            border-radius: 8px;
+            border-left: 4px solid #002395;
+        }
+
+        .key-points h4 {
+            color: #002395;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .key-points ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .key-points li {
+            padding: 5px 0;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .key-points li:before {
+            content: "🔹 ";
+            color: #ED2939;
+        }
+
+        .credits-section {
+            background: white;
+            margin: 80px auto 0;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .credits-section h2 {
+            font-size: 2.5em;
+            color: #002395;
+            margin-bottom: 20px;
+        }
+
+        .credits-section .group-name {
+            font-size: 2em;
+            color: #ED2939;
+            font-weight: bold;
+            margin: 30px 0;
+        }
+
+        .credits-section h3 {
+            font-size: 1.5em;
+            color: #002395;
+            margin: 30px 0 20px;
+        }
+
+        .credits-list {
+            list-style: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .credits-list li {
+            font-size: 1.2em;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #002395 0%, #ED2939 100%);
+            color: white;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .credits-list li:hover {
+            transform: translateX(10px);
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #002395, #ED2939);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+        }
+
+        @media (max-width: 768px) {
+            .intro-content h1 {
+                font-size: 2.2em;
+            }
+
+            .intro-content .subtitle {
+                font-size: 1.1em;
+            }
+
+            .intro-text {
+                font-size: 1em;
+            }
+
+            .timeline-line {
+                left: 25px;
+            }
+
+            .timeline-item {
+                padding-left: 70px;
+            }
+
+            .timeline-icon {
+                left: 0;
+                width: 50px;
+                height: 50px;
+            }
+
+            .period-title {
+                font-size: 1.4em;
+            }
+
+            .content-image {
+                height: 200px;
+            }
+
+            .credits-section {
+                padding: 40px 20px;
+            }
+
+            .credits-section h2 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <img src="./New folder/map.jpg" alt="" style="width: 75vw; margin: 10vh auto; display: block; border-radius: 5%;">
+    </div>
+
+    <div class="intro-section">
+        <div class="intro-content">
+            <h1>🇫🇷 Histoire de la France</h1>
+            <p class="subtitle">Un Voyage à Travers les Siècles</p>
+            <div class="intro-text">
+                L'histoire de la France est l'une des plus riches et influentes d'Europe et du monde. Depuis l'époque gauloise jusqu'à l'ère contemporaine, la France a été le théâtre de transformations politiques, sociales, culturelles et intellectuelles majeures. Elle a vu naître des dynasties royales puissantes, des réformes religieuses, des mouvements philosophiques et artistiques qui ont marqué le monde, et des révolutions qui ont inspiré d'autres nations à revendiquer liberté et égalité. Son rôle mondial s'est étendu à travers les explorations, la colonisation, les guerres mondiales et sa participation active à la diplomatie et aux organisations internationales modernes.
+            </div>
+            <div class="scroll-indicator">↓</div>
+        </div>
+    </div>
+
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+
+        <div class="timeline-item">
+            <div class="timeline-icon">📜</div>
+            <div class="timeline-content">
+                <img src="./New folder/1.1.jpeg" alt="Medieval France" class="content-image">
+                <div class="content-body">
+                    <div class="period-title">La France ancienne et médiévale</div>
+                    <div class="date-range">500 - 1500</div>
+                    <div class="description">
+                        <p>Après la chute de l'Empire romain d'Occident, les Francs prennent progressivement le contrôle du territoire. Clovis Ier unifie les tribus franques et se convertit au christianisme, créant un lien durable entre la royauté et l'Église. La dynastie mérovingienne cède progressivement le pouvoir aux maires du palais, notamment Charles Martel, qui stoppe l'avancée des Arabes à Poitiers (732). Avec les Carolingiens, Pépin le Bref prend le trône et Charlemagne étend l'empire franc sur une grande partie de l'Europe occidentale, favorisant l'enseignement et la culture dans ce que l'on appelle la renaissance carolingienne.</p>
+                        <p>Le Moyen Âge voit aussi la montée du système féodal, où les seigneurs locaux dominent politiquement et socialement les paysans. La guerre de Cent Ans contre l'Angleterre marque un tournant, avec des figures comme Jeanne d'Arc qui galvanisent le peuple français et conduisent à la libération du territoire occupé. La culture médiévale se distingue par les cathédrales gothiques, l'architecture militaire, les universités et les premières œuvres littéraires majeures.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-icon">⚔️</div>
+            <div class="timeline-content">
+                <img src="./New folder/2.png" alt="Renaissance Versailles" class="content-image">
+                <div class="content-body">
+                    <div class="period-title">Renaissance et France moderne</div>
+                    <div class="date-range">1500 - 1700</div>
+                    <div class="description">
+                        <p>La Renaissance en France est une période de renouveau artistique, intellectuel et scientifique. François Ier attire des artistes italiens, dont Léonard de Vinci, et développe les arts et l'éducation. Cependant, cette période est aussi marquée par des guerres de religion sanglantes entre catholiques et protestants, culminant avec le massacre de la Saint-Barthélemy en 1572. Henri IV apaise le pays avec l'édit de Nantes, qui accorde une tolérance religieuse limitée.</p>
+                        <p>Louis XIV, le Roi-Soleil, représente l'apogée de l'absolutisme. Son règne se distingue par le pouvoir centralisé, la construction du château de Versailles et la promotion des arts et de la culture française. Les guerres menées par Louis XIV étendent la puissance militaire de la France mais épuisent ses finances. La France commence également son expansion coloniale, notamment en Amérique du Nord avec la fondation de Québec et des comptoirs en Afrique et en Asie.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-icon">🌍</div>
+            <div class="timeline-content">
+                <img src="./New folder/3.avif" alt="Paris Revolution" class="content-image">
+                <div class="content-body">
+                    <div class="period-title">Révolution française et ère napoléonienne</div>
+                    <div class="date-range">1789 - 1815</div>
+                    <div class="description">
+                        <p>La Révolution française éclate en 1789, provoquée par la crise financière, les inégalités sociales et l'influence des idées des Lumières. Les États généraux, la prise de la Bastille et le serment du Jeu de Paume symbolisent la fin de l'Ancien Régime. L'abolition des privilèges, la Déclaration des droits de l'homme et du citoyen et la proclamation de la République sont autant de jalons fondamentaux pour la démocratie moderne.</p>
+                        <p>La période révolutionnaire est marquée par la Terreur, une phase de répression violente menée par Robespierre et les Montagnards. Napoléon Bonaparte prend le pouvoir par coup d'État en 1799, se proclame empereur en 1804 et met en place des réformes durables telles que le Code civil et l'organisation administrative. Ses conquêtes militaires transforment l'Europe mais culminent par sa défaite à Waterloo en 1815.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-icon">🏛️</div>
+            <div class="timeline-content">
+                <img src="./New folder/4.png" alt="XIXe siècle" class="content-image">
+                <div class="content-body">
+                    <div class="period-title">La France au XIXe siècle</div>
+                    <div class="date-range">1815 - 1914</div>
+                    <div class="description">
+                        <p>Le XIXe siècle est une période de bouleversements politiques et sociaux. Après la chute de Napoléon, la Restauration rétablit les Bourbons, suivie par la monarchie de Juillet (Louis-Philippe) et la Deuxième République. Le Second Empire de Napoléon III modernise Paris avec Haussmann, développe l'industrialisation et l'expansion coloniale. La Troisième République, après 1870, instaure des réformes éducatives, consolide la laïcité et voit la France exceller dans les arts et les sciences, avec des figures telles que Victor Hugo, Zola, Monet, Renoir, Pasteur et Curie.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-icon">⚠️</div>
+            <div class="timeline-content">
+                <img src="./New folder/5.png" alt="Guerres mondiales" class="content-image">
+                <div class="content-body">
+                    <div class="period-title">Guerres mondiales</div>
+                    <div class="date-range">1914 - 1945</div>
+                    <div class="description">
+                        <p>La Première Guerre mondiale entraîne d'énormes pertes humaines, avec des batailles emblématiques comme Verdun et la Somme. La Seconde Guerre mondiale voit la défaite rapide de la France face à l'Allemagne nazie en 1940, l'occupation, le régime de Vichy et l'action héroïque de la Résistance intérieure et extérieure, menée par Charles de Gaulle. La libération en 1944 marque la restauration de la République.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-icon">🇫🇷</div>
+            <div class="timeline-content">
+                <img src="./New folder/6.png" alt="France contemporaine" class="content-image">
+                <div class="content-body">
+                    <div class="period-title">La France contemporaine</div>
+                    <div class="date-range">1945 - Aujourd'hui</div>
+                    <div class="description">
+                        <p>La Cinquième République, fondée par Charles de Gaulle en 1958, renforce la présidence et stabilise le pays. La décolonisation transforme les relations internationales françaises, notamment avec l'indépendance de l'Algérie. Mai 1968 bouleverse la société avec des mouvements étudiants et ouvriers. Aujourd'hui, la France est un acteur clé sur la scène internationale, engagée dans l'Union européenne, la diplomatie mondiale, la culture, la science et la lutte contre le changement climatique.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-icon">🎨</div>
+            <div class="timeline-content">
+                <img src="./New folder/last.jpeg" alt="Influence culturelle" class="content-image">
+                <div class="content-body">
+                    <div class="period-title">Influence culturelle et intellectuelle</div>
+                    <div class="date-range">Héritage Mondial</div>
+                    <div class="description">
+                        <p>La France a profondément marqué le monde à travers de nombreuses contributions majeures.</p>
+                    </div>
+                    <div class="key-points">
+                        <h4>Domaines d'influence:</h4>
+                        <ul>
+                            <li><strong>Philosophie:</strong> Descartes, Montesquieu, Rousseau, Sartre, Simone de Beauvoir</li>
+                            <li><strong>Littérature:</strong> Molière, Hugo, Zola, Camus</li>
+                            <li><strong>Arts:</strong> Impressionnisme, cubisme, architecture gothique et moderne</li>
+                            <li><strong>Sciences:</strong> Pasteur, Curie, Airbus et Ariane</li>
+                            <li><strong>Langue et culture:</strong> Le français est parlé dans 29 pays et la gastronomie est reconnue patrimoine mondial de l'UNESCO</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="credits-section">
+        <h2>👥 Crédits du Groupe</h2>
+        <p class="group-name">LE GROUPE 4</p>
+        <h3>Les Membres:</h3>
+        <ul class="credits-list">
+            <li>Raiyan Shikoh (RA2511003010431)</li>
+            <li>Ganesh (RA2511003010383)</li>
+            <li>Vinesh (RA2511003010401)</li>
+            <li>Vishnu (RA2511003010412)</li>
+            <li>Himanish (RA2511003010411)</li>
+        </ul>
+    </div>
+
+    <div class="scroll-top" id="scrollTop">↑</div>
+
+    <script>
+        const scrollTopBtn = document.getElementById('scrollTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        timelineItems.forEach(item => {
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
