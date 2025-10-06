@@ -468,43 +468,49 @@
     <div class="scroll-top" id="scrollTop">↑</div>
 
     <script>
-        const scrollTopBtn = document.getElementById('scrollTop');
-        
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                scrollTopBtn.classList.add('visible');
+    const scrollTopBtn = document.getElementById('scrollTop');
+
+    // Show scroll-top button
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            scrollTopBtn.classList.add('visible');
+        } else {
+            scrollTopBtn.classList.remove('visible');
+        }
+    });
+
+    scrollTopBtn.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+    // Animate timeline items both ways
+    const timelineItems = document.querySelectorAll('.timeline-item');
+
+    const observerOptions = {
+        threshold: 0.2,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // When the element enters viewport
+                entry.target.classList.add('visible');
             } else {
-                scrollTopBtn.classList.remove('visible');
+                // When it leaves viewport (scroll past or scroll up)
+                entry.target.classList.remove('visible');
             }
         });
+    }, observerOptions);
 
-        scrollTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
+    timelineItems.forEach(item => observer.observe(item));
+</script>
 
-        const timelineItems = document.querySelectorAll('.timeline-item');
-        
-        const observerOptions = {
-            threshold: 0.15,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
-
-        timelineItems.forEach(item => {
-            observer.observe(item);
-        });
-    </script>
 </body>
 
 </html>
+
 
